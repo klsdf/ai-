@@ -21,10 +21,10 @@
       </a-typography-paragraph>
     </div>
 
-    <div id="dialog-user-input">
+    <div id="dialog-user-input" >
       <a-textarea v-model="message" placeholder="" :style="{ width: '50%' }" />
  
-      <a-button type="primary" :style="{ width: '20%' }" @click="sendMsg">发送数据</a-button>
+      <a-button :disabled="disabled" type="primary" :style="{ width: '20%' }" @click="sendMsg">发送数据</a-button>
     <div style="font-size: 25px;">你是：{{ character }}</div>
     </div>
 
@@ -71,7 +71,8 @@ export default {
       character: "小红帽",
       talkChance :10,
       win:false,
-      false:false
+      lose:false,
+      disabled:false,
     }
   },
   props: ["characterName", "dialogContent"],
@@ -99,10 +100,12 @@ export default {
 
       this.ws.send(`对话：${JSON.stringify(storyScript)}`);
       this.message = "";
+      this.disabled = true;
 
     },
     websocketinit() {
-      this.ws = new WebSocket("ws://localhost:12345/");
+      // this.ws = new WebSocket("ws://localhost:12345");
+      this.ws = new WebSocket("ws://192.168.50.189:12345");
       this.ws.onmessage = (evt) => {
         var message = evt.data;
 
@@ -119,9 +122,14 @@ export default {
         else if(message.startsWith("win"))
         {
           this.win=true;
+          this.disabled = true;
         }else if(message.startsWith("lose"))
         {
           this.lose  = true;
+          this.disabled = true;
+        }else if(message.startsWith("able_button"))
+        {
+          this.disabled = false;
         }
 
       };
