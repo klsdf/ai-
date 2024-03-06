@@ -39,14 +39,14 @@ function updateMsgData()
     });
 }
 
-function talk()
-{
-
-}
-
 function createServer(httpServer) {
     const server = new WebSocket.Server({ server: httpServer });
     const router = express.Router();
+
+    router.get("/test",(req,res)=>{
+            res.end('Hello, World!\n');
+
+    })
 
     server.on("connection",  connection => {
         connection.on("message", async message => {
@@ -72,6 +72,10 @@ function createServer(httpServer) {
                             return console.error(err.message);
                         }
                     });
+                    if(!result.content)
+                    {
+                        return;
+                    }
                     if(result.content.indexOf("<做出选择>")!=-1)
                     {
                         connection.send("win")
@@ -82,13 +86,14 @@ function createServer(httpServer) {
 
                             }else
                             {
-                                connections[i].send("lose")
+                                connections[i].send("lose");
                             }
                          
                         }
                     }
                 });
-                updateMsgData()
+                updateMsgData();
+                connection.send("able_button");
             }
             else if(message === "new_character")
             {
